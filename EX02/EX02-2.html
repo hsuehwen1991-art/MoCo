@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>位置與權限測試</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            text-align: center;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            margin: 20px 0;
+            cursor: pointer;
+        }
+        #status {
+            margin-top: 20px;
+            color: #333;
+            line-height: 1.5;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+    <h3>位置服務與感測器權限</h3>
+    
+    <button onclick="startApp()">開始讀取資料</button>
+    
+    <div id="status">請點擊按鈕開始...</div>
+
+    <script>
+        async function requestSensorPermissions() {
+            try {
+                if (navigator.permissions) {
+                    await navigator.permissions.query({ name: 'accelerometer' });
+                    await navigator.permissions.query({ name: 'gyroscope' });
+                    console.log("感測器權限檢查完成");
+                }
+            } catch (error) {
+                console.log("權限請求可能不被支援", error);
+            }
+        }
+
+        async function startApp() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerText = "正在請求權限並定位中...";
+
+            // 先執行感測器權限檢查 (非同步等待)
+            await requestSensorPermissions();
+
+            // 檢查地理位置支援性
+            if (!navigator.geolocation) {
+                statusDiv.innerText = "此裝置不支援地理位置功能";
+                return;
+            }
+
+            // 請求地理位置
+            navigator.geolocation.getCurrentPosition(
+                // 成功 callback
+                function(position) {
+                    const coords = position.coords;
+
+                    console.log("緯度:", coords.latitude);
+                    console.log("經度:", coords.longitude);
+
+                    statusDiv.innerHTML = `
+                        讀取成功 (請查看 Console)<br>
+                        緯度: ${coords.latitude}<br>
+                        經度: ${coords.longitude}
+                    `;
+                },
+                // 失敗 callback
+                function(error) {
+                    console.error("定位錯誤:", error.message);
+                    
+                    let msg = "";
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED: msg = "使用者拒絕權限"; break;
+                        case error.POSITION_UNAVAILABLE: msg = "無法取得位置"; break;
+                        case error.TIMEOUT: msg = "請求逾時"; break;
+                        default: msg = error.message; break;
+                    }
+                    statusDiv.innerText = "定位失敗: " + msg;
+                },
+                // 選項
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+    </script>
+
+</body>
+</html>
