@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NUTC 資管二A 20251207 EX03</title>
+<style>
+    body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.8; }
+    button { padding: 10px 18px; font-size: 1.2rem; }
+    h3 { margin-top: 30px; }
+    .val { font-size: 1.1rem; }
+</style>
+<body>
+    <h1>Fetch Demo</h1>
+    <div class="json-output">
+        <h3>JSON 資料格式</h3>
+        <pre id="jsonOutput"></pre>
+    </div>
+
+<script>
+    async function f(test) {
+        let url = 'https://api.github.com/repos/hsuehwen1991-art/MoCo/commits';
+            let response = await fetch(url);
+
+            let commits = await response.json(); // read response body and parse as JSON
+
+            //alert(commits[0].author.login);
+            const jsonOutput = document.getElementById('jsonOutput');
+            jsonOutput.textContent = JSON.stringify(commits[0]);
+
+        }
+        f_test()
+
+</script>
+
+</body>
+</html>
