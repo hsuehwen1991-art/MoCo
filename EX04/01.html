@@ -9,17 +9,17 @@
 
 <body>
 
-    <h2>GET 表單</h2>
+    <h2>FETCH GET</h2>
 
     <form>
         <label>
-            姓：
+            姓名：
             <input type="text" id="name">
         </label><br><br>
 
         <label>
-            名：
-            <input type="number" id="age">
+            城市：
+            <input type="number" id="city">
         </label><br><br>
 
         <button type="button" id="getBtn">傳送</button>
@@ -28,13 +28,11 @@
     <script>
         document.getElementById('getBtn').addEventListener('click', () => {
             const name = document.getElementById('name').value;
-            const phone = document.getElementById('phone').value;
-            const age = document.getElementById('age').value;
+            const city = document.getElementById('city').value;
 
             const query =
                 `name=${encodeURIComponent(name)}&` +
-                `phone=${encodeURIComponent(phone)}&` +
-                `age=${encodeURIComponent(age)}`;
+                `city=${encodeURIComponent(city)}&` +
 
             fetch(`https://httpcan.org/get?${query}`)
                 .then(res => res.json())
