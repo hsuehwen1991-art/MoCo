@@ -1,56 +1,53 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
+
 <head>
-    <title>Fetch</title>
-    <style>
-        .sensor-data { margin: 20px; padding: 15px; border: 1px solid #ccc; }
-        .axis { margin: 10px 0; }
-        .value { font-weight: bold; color: #007bff; }
-    </style>
+    <meta charset="UTF-8">
+    <title>FETCH GET</title>
 </head>
+
 <body>
-    <h1>Fetch Demo</h1>
-    <div class="json-output">
-        <h3>JSON 資料格式</h3>
-        <form id="formElem">
-            <input type="text" name="firstName" value="John">
-            Picture: <input type="file" name="picture" accept="image/*">
-            <input type="submit">
-        </form>
-        <pre id="jsonOutput"></pre>
-    </div>
+
+    <h2>GET 表單</h2>
+
+    <form>
+        <label>
+            姓：
+            <input type="text" id="name">
+        </label><br><br>
+
+        <label>
+            名：
+            <input type="number" id="age">
+        </label><br><br>
+
+        <button type="button" id="getBtn">傳送</button>
+    </form>
 
     <script>
-        const formElem = document.getElementById("formElem");
-        formElem.onsubmit = async (e) => {
-            e.preventDefault();
+        document.getElementById('getBtn').addEventListener('click', () => {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const age = document.getElementById('age').value;
 
-            let response = await fetch('https://httpbingo.org/post', {
-                method: 'POST',
-                body: new FormData(formElem)
-            });
+            const query =
+                `name=${encodeURIComponent(name)}&` +
+                `phone=${encodeURIComponent(phone)}&` +
+                `age=${encodeURIComponent(age)}`;
 
-            let result = await response.json();
-
-            console.log(result);
-
-            if (result.json) {
-                alert("伺服器已收到：" + result.json.name); 
-                const jsonOutput = document.getElementById('jsonOutput');
-                jsonOutput.textContent = JSON.stringify(result.json, null, 2);
-            } else {
-                const jsonOutput = document.getElementById('jsonOutput');
-                jsonOutput.textContent = JSON.stringify(result, null, 2);
-            }
-
-            };
+            fetch(`https://httpcan.org/get?${query}`)
+                .then(res => res.json())
+                .then(data => {
+                    console.log('GET 成功:', data);
+                })
+                .catch(err => {
+                    console.error('GET 失敗:', err);
+                });
+        });
     </script>
+
 </body>
+
 </html>
 
-
-
-<script>
-  
-</script>
