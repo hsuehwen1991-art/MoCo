@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FETCH POST</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 1.5rem;
+            margin-top: 0;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        button {
+            padding: 12px;
+            background-color: #28a745; 
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <h2>FETCH POST</h2>
+
+        <form>
+            <label for="name">姓名：</label>
+            <input type="text" id="name" placeholder="請輸入姓名">
+
+            <label for="city">城市：</label>
+            <input type="text" id="city" placeholder="請輸入城市">
+
+            <button type="button" id="postBtn">傳送 POST</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('postBtn').addEventListener('click', () => {
+            const name = document.getElementById('name').value;
+            const city = document.getElementById('city').value;
+
+            const dataToSend = {
+                name: name,
+                city: city
+            };
+
+            fetch('https://httpcan.org/post', {
+                method: 'POST', 
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dataToSend) 
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log('POST 成功:', data);
+
+                alert('POST 成功！\n伺服器收到：' + JSON.stringify(data.json || data, null, 2));
+            })
+            .catch(err => {
+                console.error('POST 失敗:', err);
+            });
+        });
+    </script>
+
+</body>
+
+</html>
