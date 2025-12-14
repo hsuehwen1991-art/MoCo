@@ -33,8 +33,19 @@
 
             let result = await response.json();
 
-            alert(result.message);
-        };
+            console.log(result);
+
+            if (result.json) {
+                alert("伺服器已收到：" + result.json.name); 
+                const jsonOutput = document.getElementById('jsonOutput');
+                jsonOutput.textContent = JSON.stringify(result.json, null, 2);
+            } else {
+                const jsonOutput = document.getElementById('jsonOutput');
+                jsonOutput.textContent = JSON.stringify(result, null, 2);
+            }
+
+                alert(result.message);
+            };
     </script>
 </body>
 </html>
