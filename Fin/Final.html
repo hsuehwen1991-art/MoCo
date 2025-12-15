@@ -114,9 +114,7 @@
                 const data = await response.json();
                 document.getElementById('temp').innerText = data.current_weather.temperature;
                 document.getElementById('wind').innerText = data.current_weather.windspeed;
-            } catch (e) {
-                console.error("Weather API Error", e);
-            }
+            } 
         }
 
         async function fetchAddress(lat, lon) {
@@ -125,9 +123,7 @@
                 const response = await fetch(url);
                 const data = await response.json();
                 document.getElementById('address').innerText = data.display_name;
-            } catch (e) {
-                console.error("Address API Error", e);
-            }
+            } 
         }
 
         function requestOrientation() {
