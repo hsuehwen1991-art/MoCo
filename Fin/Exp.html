@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<!-- 宣告文件類型為 HTML5 -->
+<html lang="zh-TW">
+<!-- 設定網頁主要語言為繁體中文 -->
+<head>
+    <!-- 設定字元編碼為 UTF-8，防止中文顯示亂碼 -->
+    <meta charset="UTF-8">
+    <!-- 設定視口 (Viewport)，讓網頁寬度符合裝置寬度，實現 RWD 響應式設計 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <!-- 網頁標題，顯示在瀏覽器分頁標籤上 -->
+    <title>Pocket Dashboard 口袋儀表板</title>
+    
+    <!-- CSS 樣式表區域 -->
+    <style>
+        /* --- 透過 Gemini 在不影響模組功能且不改寫 JavaScript 情況下，協助優化前端介面 --- */
+        
+        /* 設定全域樣式 */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* 設定優先使用的字體 */
+            text-align: center; /* 讓所有文字內容置中對齊 */
+            background: #e0f7fa; /* 設定背景顏色為淺藍色 */
+            padding: 20px; /* 設定內距，避免內容貼齊邊緣 */
+            color: #333; /* 設定文字顏色為深灰色 */
+        }
+        
+        /* 設定主標題樣式 */
+        h1 { 
+            color: #006064; /* 設定標題顏色為深青色 */
+            margin-bottom: 5px; /* 設定下方邊距 */
+            letter-spacing: 1px; /* 增加字元間距 */
+        }
+
+        /* 設定副標題樣式 */
+        p.subtitle { 
+            color: #546e7a; /* 設定文字顏色為灰藍色 */
+            margin-bottom: 30px; /* 增加下方邊距，與卡片拉開距離 */
+            font-weight: 500; /* 設定字體粗細 */
+        }
+        
+        /* 設定卡片容器樣式 (每個功能區塊) */
+        .card { 
+            background: white; /* 卡片背景為白色 */
+            padding: 25px; /* 卡片內部保留空間 */
+            border-radius: 20px; /* 設定圓角效果 */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08); /* 加入陰影讓卡片浮起來 */
+            margin-bottom: 20px; /* 卡片之間的距離 */
+            max-width: 400px; /* 限制卡片最大寬度 */
+            margin-left: auto; /* 水平自動置中 */
+            margin-right: auto; /* 水平自動置中 */
+            transition: transform 0.2s; /* 設定變形動畫的過渡時間 */
+        }
+
+        /* 當滑鼠移過卡片時的效果 */
+        .card:hover { 
+            transform: translateY(-5px); /* 讓卡片往上浮動 5px */
+        }
+        
+        /* 設定卡片內的小標題樣式 */
+        h2 { 
+            margin-top: 0; /* 移除上方邊距 */
+            color: #00838f; /* 設定顏色 */
+            border-bottom: 2px solid #b2dfdb; /* 底部加上裝飾線 */
+            padding-bottom: 10px; /* 標題與裝飾線的距離 */
+            font-size: 1.2rem; /* 設定字體大小 */
+        }
+
+        /* 設定數據顯示的樣式 (如溫度、經緯度) */
+        .data { 
+            font-size: 28px; /* 放大字體 */
+            font-weight: bold; /* 粗體 */
+            color: #2c3e50; /* 深藍色 */
+            margin: 15px 0; /* 上下邊距 */
+        }
+
+        /* 設定標籤說明文字的樣式 */
+        .label { 
+            font-size: 14px; /* 較小的字體 */
+            color: #7f8c8d; /* 灰色 */
+        }
+        
+        /* 設定 Google Maps 按鈕樣式 */
+        #map-link {
+            display: none; /* 預設隱藏，定位成功後才顯示 */
+            background-color: #4285F4; /* Google 官方藍色 */
+            color: white; /* 文字白色 */
+            text-decoration: none; /* 移除超連結底線 */
+            padding: 12px 25px; /* 按鈕內距 */
+            border-radius: 50px; /* 膠囊狀圓角 */
+            font-weight: bold; /* 粗體文字 */
+            margin-top: 15px; /* 上方邊距 */
+            box-shadow: 0 4px 6px rgba(66, 133, 244, 0.3); /* 按鈕陰影 */
+            transition: all 0.2s; /* 所有屬性變化都有過渡效果 */
+        }
+
+        /* 當按下按鈕時的效果 */
+        #map-link:active { 
+            transform: scale(0.95); /* 稍微縮小，產生按壓感 */
+            box-shadow: 0 2px 4px rgba(66, 133, 244, 0.2); /* 陰影變小 */
+        }
+
+        /* 設定指南針箭頭樣式 */
+        #compass-arrow { 
+            font-size: 60px; /* 放大箭頭圖示 */
+            display: inline-block; /* 設定為區塊元素以便旋轉 */
+            /* 設定旋轉動畫曲線，讓轉動更自然 */
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+
+        /* 設定啟用感測器按鈕樣式 */
+        .btn-start { 
+            background: #00838f; /* 深青色背景 */
+            color: white; /* 白色文字 */
+            border: none; /* 移除邊框 */
+            padding: 10px 20px; /* 內距 */
+            border-radius: 8px; /* 圓角 */
+            font-size: 15px; /* 字體大小 */
+            cursor: pointer; /* 滑鼠游標變為手指 */
+            margin-top: 10px; /* 上方邊距 */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 網頁主標題 -->
+    <h1>口袋儀表板 📱 Pocket Dashboard</h1>
+    <!-- 副標題 -->
+    <p class="subtitle">隨身環境偵測系統</p>
+
+    <!-- 功能區塊 1：GPS 定位資訊 -->
+    <div class="card">
+        <h2>📍 我的位置 (GPS)</h2>
+        <!-- 狀態顯示區域 -->
+        <div id="gps-status" class="label">📡 正在接收衛星訊號...</div>
+        
+        <!-- 經緯度數值顯示區域 -->
+        <div class="data">
+            <span id="lat">--</span>, <span id="lon">--</span>
+        </div>
+        <!-- 中文地址顯示區域 -->
+        <div id="address" class="label" style="color: #e91e63; font-weight: bold; min-height: 20px;"></div>
+
+        <!-- Google Maps 連結按鈕 (預設隱藏) -->
+        <a id="map-link" href="#" target="_blank">🗺️ 開啟 Google 地圖</a>
+    </div>
+
+    <!-- 功能區塊 2：天氣資訊 -->
+    <div class="card">
+        <h2>☁️ 當地天氣 (API)</h2>
+        <div class="data">
+            <!-- 溫度數值 -->
+            <span id="temp">--</span>°C
+        </div>
+        <!-- 風速數值 -->
+        <div class="label">💨 風速: <span id="wind">--</span> km/h</div>
+    </div>
+
+    <!-- 功能區塊 3：電子羅盤 -->
+    <div class="card">
+        <h2>🧭 電子羅盤</h2>
+        <!-- 指南針箭頭圖示 -->
+        <div id="compass-arrow">⬆️</div>
+        <!-- 角度數值 -->
+        <div class="data"><span id="alpha">0</span>°</div>
+        <div class="label">請平放手機並旋轉</div>
+        <!-- iOS 授權按鈕 -->
+        <button class="btn-start" onclick="requestOrientation()">啟用感測器 (iOS)</button>
+    </div>
+
+    <!-- JavaScript 程式邏輯區域 -->
+    <script>
+        // 定義啟動 GPS 的函式
+        function startGPS() {
+            // 檢查瀏覽器是否支援 Geolocation API
+            if ("geolocation" in navigator) {
+                // 呼叫 getCurrentPosition 取得當前位置，這是一個非同步操作
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    // 從回傳的 position 物件中取得緯度
+                    const lat = position.coords.latitude;
+                    // 從回傳的 position 物件中取得經度
+                    const lon = position.coords.longitude;
+
+                    // 將緯度顯示在網頁上，並使用 toFixed(4) 取小數點後 4 位
+                    document.getElementById('lat').innerText = lat.toFixed(4);
+                    // 將經度顯示在網頁上，並取小數點後 4 位
+                    document.getElementById('lon').innerText = lon.toFixed(4);
+                    // 更新定位狀態文字為成功
+                    document.getElementById('gps-status').innerText = "✅ 定位鎖定";
+
+                    // --- 額外增加 Google Maps 串聯，讓使用更為直觀 ---
+                    // 取得地圖按鈕元素
+                    const mapLink = document.getElementById('map-link');
+                    // 設定按鈕的連結網址，帶入經緯度參數 (query string)
+                    mapLink.href = `https://www.google.com/maps?q=${lat},${lon}`;
+                    // 將按鈕的顯示樣式從 none 改為 inline-block (顯示出來)
+                    mapLink.style.display = "inline-block";
+
+                    // 呼叫天氣查詢函式，使用 await 等待結果
+                    await fetchWeather(lat, lon);
+                    // 呼叫地址查詢函式，使用 await 等待結果
+                    await fetchAddress(lat, lon);
+
+                }, (err) => {
+                    // 如果定位失敗 (例如使用者拒絕)，執行此區塊
+                    document.getElementById('gps-status').innerText = "❌ 無法定位";
+                    // 跳出警告視窗提醒使用者
+                    alert("請允許 GPS 權限以使用儀表板功能。");
+                });
+            } else {
+                // 如果瀏覽器不支援 GPS，跳出警告
+                alert("瀏覽器不支援 GPS");
+            }
+        }
+
+        // 定義查詢天氣的非同步函式 (使用 Open-Meteo API)
+        async function fetchWeather(lat, lon) {
+            // 準備 API 請求網址，包含經緯度參數
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+            // 使用 fetch 發送網路請求，並等待回應
+            const response = await fetch(url);
+            // 將回應內容轉換為 JSON 格式
+            const data = await response.json();
+            // 從 JSON 資料中提取溫度，更新到網頁
+            document.getElementById('temp').innerText = data.current_weather.temperature;
+            // 從 JSON 資料中提取風速，更新到網頁
+            document.getElementById('wind').innerText = data.current_weather.windspeed;
+            }
+        
+        // 定義查詢地址的非同步函式 (使用 OpenStreetMap Nominatim API)
+        async function fetchAddress(lat, lon) {
+            // 準備 API 請求網址，設定 format 為 json
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+            // 使用 fetch 發送網路請求，並等待回應
+            const response = await fetch(url);
+            // 將回應內容轉換為 JSON 格式
+            const data = await response.json();
+            // 從 JSON 資料中提取顯示名稱 (display_name)，更新到網頁
+            document.getElementById('address').innerText = data.display_name;
+            } 
+
+        // 定義請求裝置方向權限的函式 (針對 iOS 13+ 安全性要求)
+        function requestOrientation() {
+            // 檢查是否為 iOS 裝置 (是否有 requestPermission 方法)
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                // 呼叫請求權限的方法
+                DeviceOrientationEvent.requestPermission()
+                    // 使用 Promise 處理使用者的選擇
+                    .then(response => {
+                        // 如果使用者允許 (granted)
+                        if (response == 'granted') window.addEventListener('deviceorientation', handleOrientation);
+                        // 如果使用者拒絕，跳出警告
+                        else alert("授權被拒絕");
+                    })
+                    // 捕捉可能的錯誤
+                    .catch(console.error);
+            } else {
+                // 如果是 Android 或一般電腦，直接加入監聽器，不需要請求權限
+                window.addEventListener('deviceorientation', handleOrientation);
+            }
+        }
+
+        // 處理裝置方向改變的事件函式
+        function handleOrientation(event) {
+            // 取得 Z 軸旋轉角度 (alpha)，範圍 0 到 360 度
+            const alpha = event.alpha;
+            // 確保 alpha 值存在
+            if (alpha !== null) {
+                // 更新網頁上的角度數值，並四捨五入
+                document.getElementById('alpha').innerText = Math.round(alpha);
+                // 設定 CSS transform 屬性來旋轉箭頭圖片
+                // 360 - alpha 是為了反向旋轉，讓箭頭視覺上保持指向北方
+                document.getElementById('compass-arrow').style.transform = `rotate(${360 - alpha}deg)`;
+            }
+        }
+
+        // 程式進入點：執行 startGPS 函式開始運作
+        startGPS();
+    </script>
+</body>
+</html>
