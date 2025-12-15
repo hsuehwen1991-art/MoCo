@@ -109,22 +109,18 @@
 
         async function fetchWeather(lat, lon) {
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                document.getElementById('temp').innerText = data.current_weather.temperature;
-                document.getElementById('wind').innerText = data.current_weather.windspeed;
-            } 
-        }
-
+            const response = await fetch(url);
+            const data = await response.json();
+            document.getElementById('temp').innerText = data.current_weather.temperature;
+            document.getElementById('wind').innerText = data.current_weather.windspeed;
+            }
+        
         async function fetchAddress(lat, lon) {
             const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                document.getElementById('address').innerText = data.display_name;
+            const response = await fetch(url);
+            const data = await response.json();
+            document.getElementById('address').innerText = data.display_name;
             } 
-        }
 
         function requestOrientation() {
             if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
