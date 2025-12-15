@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    // --- 透過Gemini在不影響模組功能且不改寫JavaScript情況下優化前端介面 ---
+    <title>Pocket Dashboard 口袋儀表板</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background: #e0f7fa; padding: 20px; color: #333; }
+        
+        h1 { color: #006064; margin-bottom: 5px; letter-spacing: 1px; }
+        p.subtitle { color: #546e7a; margin-bottom: 30px; font-weight: 500; }
+        
+        .card { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08); 
+            margin-bottom: 20px; 
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            transition: transform 0.2s;
+        }
+        .card:hover { transform: translateY(-5px); }
+        
+        h2 { margin-top: 0; color: #00838f; border-bottom: 2px solid #b2dfdb; padding-bottom: 10px; font-size: 1.2rem; }
+        .data { font-size: 28px; font-weight: bold; color: #2c3e50; margin: 15px 0; }
+        .label { font-size: 14px; color: #7f8c8d; }
+        
+        #map-link {
+            display: none; 
+            background-color: #4285F4; 
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-top: 15px;
+            box-shadow: 0 4px 6px rgba(66, 133, 244, 0.3);
+            transition: all 0.2s;
+        }
+        #map-link:active { transform: scale(0.95); box-shadow: 0 2px 4px rgba(66, 133, 244, 0.2); }
+
+        #compass-arrow { font-size: 60px; display: inline-block; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .btn-start { background: #00838f; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 15px; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1>📱 Pocket Dashboard</h1>
+    <p class="subtitle">口袋儀表板 - 隨身環境偵測系統</p>
+
+    <div class="card">
+        <h2>📍 我的位置 (GPS)</h2>
+        <div id="gps-status" class="label">📡 正在接收衛星訊號...</div>
+        
+        <div class="data">
+            <span id="lat">--</span>, <span id="lon">--</span>
+        </div>
+        <div id="address" class="label" style="color: #e91e63; font-weight: bold; min-height: 20px;"></div>
+
+        <a id="map-link" href="#" target="_blank">🗺️ 開啟 Google 地圖</a>
+    </div>
+
+    <div class="card">
+        <h2>☁️ 當地天氣 (API)</h2>
+        <div class="data">
+            <span id="temp">--</span>°C
+        </div>
+        <div class="label">💨 風速: <span id="wind">--</span> km/h</div>
+    </div>
+
+    <div class="card">
+        <h2>🧭 電子羅盤</h2>
+        <div id="compass-arrow">⬆️</div>
+        <div class="data"><span id="alpha">0</span>°</div>
+        <div class="label">請平放手機並旋轉</div>
+        <button class="btn-start" onclick="requestOrientation()">啟用感測器 (iOS)</button>
+    </div>
+
+    <script>
+        function startGPS() {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+
+                    document.getElementById('lat').innerText = lat.toFixed(4);
+                    document.getElementById('lon').innerText = lon.toFixed(4);
+                    document.getElementById('gps-status').innerText = "✅ 定位鎖定";
+
+                    // 額外增加Google Maps串聯，讓使用更為直觀
+                    const mapLink = document.getElementById('map-link');
+                    mapLink.href = `https://www.google.com/maps?q=${lat},${lon}`;
+                    mapLink.style.display = "inline-block";
+
+                    await fetchWeather(lat, lon);
+                    await fetchAddress(lat, lon);
+
+                }, (err) => {
+                    document.getElementById('gps-status').innerText = "❌ 無法定位";
+                    alert("請允許 GPS 權限以使用儀表板功能。");
+                });
+            } else {
+                alert("瀏覽器不支援 GPS");
+            }
+        }
+
+        async function fetchWeather(lat, lon) {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                document.getElementById('temp').innerText = data.current_weather.temperature;
+                document.getElementById('wind').innerText = data.current_weather.windspeed;
+            } catch (e) {
+                console.error("Weather API Error", e);
+            }
+        }
+
+        async function fetchAddress(lat, lon) {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                document.getElementById('address').innerText = data.display_name;
+            } catch (e) {
+                console.error("Address API Error", e);
+            }
+        }
+
+        function requestOrientation() {
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        if (response == 'granted') window.addEventListener('deviceorientation', handleOrientation);
+                        else alert("授權被拒絕");
+                    })
+                    .catch(console.error);
+            } else {
+                window.addEventListener('deviceorientation', handleOrientation);
+            }
+        }
+
+        function handleOrientation(event) {
+            const alpha = event.alpha;
+            if (alpha !== null) {
+                document.getElementById('alpha').innerText = Math.round(alpha);
+                document.getElementById('compass-arrow').style.transform = `rotate(${360 - alpha}deg)`;
+            }
+        }
+
+        startGPS();
+    </script>
+</body>
+</html>
